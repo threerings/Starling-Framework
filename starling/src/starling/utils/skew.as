@@ -23,10 +23,10 @@ package starling.utils
         var cosX:Number = Math.cos(skewX);
         var sinY:Number = Math.sin(skewY);
         var cosY:Number = Math.cos(skewY);
-
-        matrix.a = a*cosX + c*sinY;
-        matrix.b = b*cosY + d*sinY;
-        matrix.c = c*cosX - a*sinX;
-        matrix.d = d*cosX - b*sinX;
+        
+        matrix.a = a*cosY - b*sinX;
+        matrix.b = a*sinY + b*cosX;
+        matrix.c = c*cosY - d*sinX;
+        matrix.d = c*sinY + d*cosX;
     }
 }
