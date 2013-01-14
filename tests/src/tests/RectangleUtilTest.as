@@ -13,6 +13,7 @@ package tests
     import flash.geom.Rectangle;
     
     import starling.utils.RectangleUtil;
+    import starling.utils.ScaleMode;
 
     public class RectangleUtilTest
     {
@@ -47,6 +48,48 @@ package tests
             expectedRect = insideRect;
             Helpers.compareRectangles(expectedRect,
                 RectangleUtil.intersect(rect, insideRect));
+        }
+        
+        [Test]
+        public function testFit():void
+        {
+            var into:Rectangle = new Rectangle(50, 50, 200, 100);
+            
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 200, 100), into),
+                new Rectangle(50, 50, 200, 100));
+                    
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 50, 50), into, ScaleMode.NONE),
+                new Rectangle(125, 75, 50, 50));
+            
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 400, 200), into, ScaleMode.NONE),
+                new Rectangle(-50, 0, 400, 200));
+
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 50, 50), into, ScaleMode.SHOW_ALL),
+                new Rectangle(100, 50, 100, 100));
+            
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 400, 200), into, ScaleMode.SHOW_ALL),
+                new Rectangle(50, 50, 200, 100));
+            
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 800, 400), into, ScaleMode.SHOW_ALL),
+                new Rectangle(50, 50, 200, 100));
+            
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 400, 200), into, ScaleMode.NO_BORDER),
+                new Rectangle(50, 50, 200, 100));
+            
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 200, 200), into, ScaleMode.NO_BORDER),
+                new Rectangle(50, 0, 200, 200));
+            
+            Helpers.compareRectangles(
+                RectangleUtil.fit(new Rectangle(0, 0, 800, 800), into, ScaleMode.NO_BORDER),
+                new Rectangle(50, 0, 200, 200));
         }
     }
 }
