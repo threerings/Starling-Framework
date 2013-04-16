@@ -1,17 +1,36 @@
+// =================================================================================================
 //
-// Starling
+//	Starling Framework
+//	Copyright 2013 Gamua OG. All Rights Reserved.
+//
+//	This program is free software. You can redistribute and/or modify it
+//	in accordance with the terms of the accompanying license agreement.
+//
+// =================================================================================================
 
-package starling.text {
-
-public class TextFieldAutoSize
+package starling.text 
 {
-    /** No auto-sizing will happen */
-    public static const NONE :String = "none";
+    import starling.errors.AbstractClassError;
 
-    /** Text will be laid out on a single line, and the TextField will be auto-sized */
-    public static const SINGLE_LINE :String = "singleLine";
-
-    /** Text will be laid out on multiple lines, and the TextField will be auto-sized */
-    public static const MULTI_LINE :String = "multiLine";
-}
+    /** This class is an enumeration of constant values used in setting the 
+     *  autoSize property of the TextField class. */ 
+    public class TextFieldAutoSize
+    {
+        /** @private */
+        public function TextFieldAutoSize() { throw new AbstractClassError(); }
+        
+        /** No auto-sizing will happen. */
+        public static const NONE:String = "none";
+        
+        /** The text field will grow to the right; no line-breaks will be added.
+         *  The height of the text field remains unchanged. */ 
+        public static const HORIZONTAL:String = "horizontal";
+        
+        /** The text field will grow to the bottom, adding line-breaks when necessary.
+          * The width of the text field remains unchanged. */
+        public static const VERTICAL:String = "vertical";
+        
+        /** The text field will grow to the right and bottom; no line-breaks will be added. */
+        public static const BOTH_DIRECTIONS:String = "bothDirections";
+    }
 }
