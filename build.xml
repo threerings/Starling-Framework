@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <project name="starling" default="dist" basedir=".">
-  <property name="asrc.dir" location="../src"/>
+  <property name="asrc.dir" location="starling/src"/>
   <property name="deploy.dir" location="dist"/>
 
   <property name="ooo-build.vers" value="2.5"/>
