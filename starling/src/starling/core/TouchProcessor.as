@@ -10,6 +10,7 @@
 
 package starling.core
 {
+    import flash.geom.Point;
     import flash.utils.getDefinitionByName;
     
     import starling.display.Stage;
@@ -44,7 +45,9 @@ package starling.core
         
         /** Helper objects. */
         private static var sProcessedTouchIDs:Vector.<int> = new <int>[];
-
+        private static var sHoveringTouchData:Vector.<Object> = new <Object>[];
+        private static var sHelperPoint:Point = new Point();
+        
         public function TouchProcessor(stage:Stage)
         {
             mStage = stage;
@@ -179,7 +182,13 @@ package starling.core
             touch.setTimestamp(mElapsedTime);
             touch.setPressure(pressure);
             touch.setSize(width, height);
-
+            
+            if (phase == TouchPhase.HOVER || phase == TouchPhase.BEGAN)
+            {
+                sHelperPoint.setTo(globalX, globalY);
+                touch.setTarget(mStage.hitTest(sHelperPoint, true));
+            }
+            
             if (phase == TouchPhase.BEGAN)
                 processTap(touch);
 
