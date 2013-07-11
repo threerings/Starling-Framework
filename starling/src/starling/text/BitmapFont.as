@@ -162,14 +162,13 @@ package starling.text
         
         /** Creates a sprite that contains a certain text, made up by one image per char. */
         public function createSprite(width:Number, height:Number, text:String,
-                                     fontSize:Number=-1, color:uint=0xffffff,
-                                     hAlign:String="center", vAlign:String="center",
-                                     autoScale:Boolean=true, kerning:Boolean=true,
-                                     autoSize:Boolean=true, multiline:Boolean=true):Sprite
+                                     fontSize:Number=-1, color:uint=0xffffff, 
+                                     hAlign:String="center", vAlign:String="center",      
+                                     autoScale:Boolean=true, 
+                                     kerning:Boolean=true):Sprite
         {
-            var charLocations:Vector.<CharLocation> = arrangeChars(width, height, text, fontSize,
-                                                                   hAlign, vAlign, autoScale, kerning,
-                                                                   autoSize, multiline);
+            var charLocations:Vector.<CharLocation> = arrangeChars(width, height, text, fontSize, 
+                                                                   hAlign, vAlign, autoScale, kerning);
             var numChars:int = charLocations.length;
             var sprite:Sprite = new Sprite();
             
@@ -189,14 +188,13 @@ package starling.text
         
         /** Draws text into a QuadBatch. */
         public function fillQuadBatch(quadBatch:QuadBatch, width:Number, height:Number, text:String,
-                                      fontSize:Number=-1, color:uint=0xffffff,
-                                      hAlign:String="center", vAlign:String="center",
-                                      autoScale:Boolean=true, kerning:Boolean=true,
-                                      autoSize:Boolean=true, multiline:Boolean=true):void
+                                      fontSize:Number=-1, color:uint=0xffffff, 
+                                      hAlign:String="center", vAlign:String="center",      
+                                      autoScale:Boolean=true, 
+                                      kerning:Boolean=true):void
         {
-            var charLocations:Vector.<CharLocation> = arrangeChars(width, height, text, fontSize,
-                                                                   hAlign, vAlign, autoScale, kerning,
-                                                                   autoSize, multiline);
+            var charLocations:Vector.<CharLocation> = arrangeChars(width, height, text, fontSize, 
+                                                                   hAlign, vAlign, autoScale, kerning);
             var numChars:int = charLocations.length;
             mHelperImage.color = color;
             
@@ -219,12 +217,8 @@ package starling.text
          *  Returns a Vector of CharLocations. */
         private function arrangeChars(width:Number, height:Number, text:String, fontSize:Number=-1,
                                       hAlign:String="center", vAlign:String="center",
-                                      autoScale:Boolean=true, kerning:Boolean=true,
-                                      autoSize:Boolean=true, multiline:Boolean=true):Vector.<CharLocation>
+                                      autoScale:Boolean=true, kerning:Boolean=true):Vector.<CharLocation>
         {
-            if (autoSize && autoScale)
-                throw new ArgumentError("autoScale and autoSize cannot both be used");
-
             if (text == null || text.length == 0) return new <CharLocation>[];
             if (fontSize < 0) fontSize *= -mSize;
             
@@ -232,23 +226,19 @@ package starling.text
             var finished:Boolean = false;
             var charLocation:CharLocation;
             var numChars:int;
+            var containerWidth:Number;
+            var containerHeight:Number;
             var scale:Number;
-            var maxWidth:Number;
-            var maxHeight:Number;
-            var totalWidth:Number;
-            var totalHeight:Number;
-
+            
             while (!finished)
             {
                 scale = fontSize / mSize;
-                maxWidth = (width > 0 ? width / scale : Number.MAX_VALUE);
-                maxHeight = (height > 0 ? height / scale : Number.MAX_VALUE);
-                totalWidth = 0;
-                totalHeight = 0;
-
+                containerWidth  = width / scale;
+                containerHeight = height / scale;
+                
                 lines = new Vector.<Vector.<CharLocation>>();
-
-                if (mLineHeight <= maxHeight)
+                
+                if (mLineHeight <= containerHeight)
                 {
                     var lastWhiteSpace:int = -1;
                     var lastCharID:int = -1;
@@ -261,11 +251,6 @@ package starling.text
                     {
                         var lineFull:Boolean = false;
                         var charID:int = text.charCodeAt(i);
-
-                        // If this is not a multiline textfield, convert newlines into spaces
-                        if (!multiline && (charID == CHAR_NEWLINE || charID == CHAR_CARRIAGE_RETURN))
-                            charID = CHAR_SPACE;
-
                         var char:BitmapChar = getChar(charID);
                         
                         if (charID == CHAR_NEWLINE || charID == CHAR_CARRIAGE_RETURN)
@@ -295,18 +280,10 @@ package starling.text
                             currentX += char.xAdvance;
                             lastCharID = charID;
                             
-                            if (currentLine.length == 1)
+                            if (charLocation.x + char.width > containerWidth)
                             {
-                                // the first character is not meant to have an xOffset
-                                currentX -= char.xOffset;
-                                charLocation.x -= char.xOffset;
-                            }
-
-                            if (getLineWidth(currentLine) > maxWidth)
-                            {
-                                // remove characters and add them again to next line.
-                                // if this is a single-line text-field, only pop the last character.
-                                var numCharsToRemove:int = lastWhiteSpace == -1 || !multiline ? 1 : i - lastWhiteSpace;
+                                // remove characters and add them again to next line
+                                var numCharsToRemove:int = lastWhiteSpace == -1 ? 1 : i - lastWhiteSpace;
                                 var removeIndex:int = currentLine.length - numCharsToRemove;
                                 
                                 currentLine.splice(removeIndex, numCharsToRemove);
@@ -318,20 +295,20 @@ package starling.text
                                 lineFull = true;
                             }
                         }
-
-                        if (lineFull || i == numChars - 1)
+                        
+                        if (i == numChars - 1)
                         {
+                            lines.push(currentLine);
+                            finished = true;
+                        }
+                        else if (lineFull)
+                        {
+                            lines.push(currentLine);
+                            
                             if (lastWhiteSpace == i)
                                 currentLine.pop();
-                            lines.push(currentLine);
-                            totalWidth = Math.max(getLineWidth(currentLine), totalWidth);
-                            totalHeight += mLineHeight;
-
-                            if (i == numChars - 1)
-                            {
-                                finished = true;
-                            }
-                            else if (totalHeight + mLineHeight <= maxHeight) // can we fit another line?
+                            
+                            if (currentY + 2*mLineHeight <= containerHeight)
                             {
                                 currentLine = new <CharLocation>[];
                                 currentX = 0;
@@ -345,8 +322,8 @@ package starling.text
                             }
                         }
                     } // for each char
-                } // if (mLineHeight <= maxHeight)
-
+                } // if (mLineHeight <= containerHeight)
+                
                 if (autoScale && !finished)
                 {
                     fontSize -= 1;
@@ -360,11 +337,8 @@ package starling.text
             
             var finalLocations:Vector.<CharLocation> = new <CharLocation>[];
             var numLines:int = lines.length;
-            var bottom:Number = totalHeight;
+            var bottom:Number = currentY + mLineHeight;
             var yOffset:int = 0;
-
-            var containerWidth:Number = (autoSize ? totalWidth : width / scale);
-            var containerHeight:Number = (autoSize ? totalHeight : height / scale);
             
             if (vAlign == VAlign.BOTTOM)      yOffset =  containerHeight - bottom;
             else if (vAlign == VAlign.CENTER) yOffset = (containerHeight - bottom) / 2;
@@ -375,9 +349,11 @@ package starling.text
                 numChars = line.length;
                 
                 if (numChars == 0) continue;
-
-                var right:Number = getLineWidth(line);
+                
                 var xOffset:int = 0;
+                var lastLocation:CharLocation = line[line.length-1];
+                var right:Number = lastLocation.x - lastLocation.char.xOffset 
+                                                  + lastLocation.char.xAdvance;
                 
                 if (hAlign == HAlign.RIGHT)       xOffset =  containerWidth - right;
                 else if (hAlign == HAlign.CENTER) xOffset = (containerWidth - right) / 2;
@@ -399,17 +375,7 @@ package starling.text
             
             return finalLocations;
         }
-
-        /** Returns the length of a line as specified by a vector of CharLocations */
-        protected static function getLineWidth (line:Vector.<CharLocation>) :Number
-        {
-            if (line.length == 0)
-                return 0;
-
-            var lastLocation:CharLocation = line[line.length-1];
-            return lastLocation.x - lastLocation.char.xOffset + lastLocation.char.width;
-        }
-
+        
         /** The name of the font as it was parsed from the font file. */
         public function get name():String { return mName; }
         
