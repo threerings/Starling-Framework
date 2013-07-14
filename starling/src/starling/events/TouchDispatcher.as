@@ -65,11 +65,11 @@ package starling.events
 
                 // hovering touches need special handling (see below)
                 if (touch.phase == TouchPhase.HOVER && touch.target)
-                    sHoveringTouchData.push({
-                        touch: touch,
-                        target: touch.target,
-                        bubbleChain: touch.bubbleChain
-                    });
+                    sHoveringTouchData[sHoveringTouchData.length] = { 
+                        touch: touch, 
+                        target: touch.target, 
+                            bubbleChain: touch.bubbleChain 
+                    }; // avoiding 'push'
 
                 if (touch.phase == TouchPhase.HOVER || touch.phase == TouchPhase.BEGAN)
                     touch.setTarget(mRoot.hitTest(new Point(touch.globalX, touch.globalY), true));
