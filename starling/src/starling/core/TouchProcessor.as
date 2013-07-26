@@ -105,6 +105,7 @@ package starling.core
                     sProcessedTouchIDs.indexOf(mQueue[mQueue.length-1][0]) == -1)
                 {
                     var touchArgs:Array = mQueue.pop();
+                    touchID = touchArgs[0] as int;
                     touch = processTouch(touchArgs[0], touchArgs[1], touchArgs[2], touchArgs[3],
                         touchArgs[4], touchArgs[5], touchArgs[6]);
                     sProcessedTouchIDs[sProcessedTouchIDs.length] = touchID; // avoiding 'push'
